@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import type { CompositeScreenProps } from '@react-navigation/native';
+import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useJob } from '../context/JobContext';
+import type { RootStackParamList, TabParamList } from '../navigation/types';
 import { useAppTheme } from '../context/ThemeContext';
 import { ThemeColors } from '../theme';
 import { GoogleIcon } from '../components/GoogleIcon';
@@ -9,8 +13,13 @@ import { GoogleIcon } from '../components/GoogleIcon';
 // own its own hirestackmobile:// redirect scheme - hidden until that's built.
 const GOOGLE_SIGN_IN_ENABLED = false;
 
-export const ProfileScreen: React.FC = () => {
-  const { currentUser, userProfile, signIn, signUp, signInWithGoogle, logout } = useJob();
+type Props = CompositeScreenProps<
+  BottomTabScreenProps<TabParamList, 'Profile'>,
+  NativeStackScreenProps<RootStackParamList>
+>;
+
+export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
+  const { currentUser, userProfile, savedJobIds, signIn, signUp, signInWithGoogle, logout } = useJob();
   const { theme, colors, toggleTheme } = useAppTheme();
   const styles = React.useMemo(() => createStyles(colors), [colors]);
   const [mode, setMode] = useState<'login' | 'signup'>('login');
@@ -30,6 +39,10 @@ export const ProfileScreen: React.FC = () => {
         <Text style={styles.name}>{currentUser.name}</Text>
         <Text style={styles.email}>{currentUser.email}</Text>
         {userProfile.title ? <Text style={styles.title}>{userProfile.title}</Text> : null}
+
+        <TouchableOpacity style={styles.savedRow} onPress={() => navigation.navigate('Saved')}>
+          <Text style={styles.savedRowText}>★ Saved Jobs ({savedJobIds.length})</Text>
+        </TouchableOpacity>
 
         <TouchableOpacity style={styles.themeRow} onPress={toggleTheme}>
           <Text style={styles.themeRowText}>{theme === 'dark' ? '☀️ Switch to Light Mode' : '🌙 Switch to Dark Mode'}</Text>
@@ -164,6 +177,16 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
     backgroundColor: colors.surface,
   },
   googleButtonText: { color: colors.text, fontWeight: '700', fontSize: 14 },
+  savedRow: {
+    marginTop: 20,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 12,
+    paddingVertical: 12,
+    alignItems: 'center',
+    backgroundColor: colors.surface,
+  },
+  savedRowText: { color: colors.text, fontWeight: '600', fontSize: 13 },
   themeRow: {
     marginTop: 16,
     borderWidth: 1,

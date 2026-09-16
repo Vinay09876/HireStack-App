@@ -5,6 +5,8 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Text, TouchableOpacity } from 'react-native';
 import { JobsListScreen } from '../screens/JobsListScreen';
 import { SavedJobsScreen } from '../screens/SavedJobsScreen';
+import { CompaniesListScreen } from '../screens/CompaniesListScreen';
+import { CompanyDetailScreen } from '../screens/CompanyDetailScreen';
 import { JobAlertsScreen } from '../screens/JobAlertsScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
 import { JobDetailScreen } from '../screens/JobDetailScreen';
@@ -16,15 +18,10 @@ const Tab = createBottomTabNavigator<TabParamList>();
 
 const TAB_ICONS: Record<keyof TabParamList, string> = {
   JobsList: '🔎',
-  Saved: '★',
+  Companies: '🏢',
   Alerts: '🔔',
   Profile: '👤',
 };
-
-// The star glyph renders in the system's default text color instead of an
-// emoji's fixed color, so it needs the tab's tint color passed in explicitly
-// or it stays black and disappears against a dark background.
-const TINTED_ICONS: (keyof TabParamList)[] = ['Saved'];
 
 function ThemeToggleButton() {
   const { theme, toggleTheme } = useAppTheme();
@@ -46,16 +43,13 @@ function Tabs() {
         tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.border },
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textMuted,
-        tabBarIcon: ({ color, focused }) =>
-          TINTED_ICONS.includes(route.name) ? (
-            <Text style={{ color, fontSize: 16 }}>{TAB_ICONS[route.name]}</Text>
-          ) : (
-            <Text style={{ opacity: focused ? 1 : 0.6 }}>{TAB_ICONS[route.name]}</Text>
-          ),
+        tabBarIcon: ({ focused }) => (
+          <Text style={{ fontSize: 16, opacity: focused ? 1 : 0.6 }}>{TAB_ICONS[route.name]}</Text>
+        ),
       })}
     >
       <Tab.Screen name="JobsList" component={JobsListScreen} options={{ title: 'Jobs' }} />
-      <Tab.Screen name="Saved" component={SavedJobsScreen} options={{ title: 'Saved' }} />
+      <Tab.Screen name="Companies" component={CompaniesListScreen} options={{ title: 'Companies' }} />
       <Tab.Screen name="Alerts" component={JobAlertsScreen} options={{ title: 'Alerts' }} />
       <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: 'Profile' }} />
     </Tab.Navigator>
@@ -73,18 +67,17 @@ export const RootNavigator: React.FC = () => {
         colors: { ...navTheme.colors, background: colors.background, card: colors.surface, border: colors.border, text: colors.text, primary: colors.primary },
       }}
     >
-      <Stack.Navigator>
+      <Stack.Navigator
+        screenOptions={{
+          headerStyle: { backgroundColor: colors.surface },
+          headerTitleStyle: { color: colors.text },
+          headerTintColor: colors.primary,
+        }}
+      >
         <Stack.Screen name="Tabs" component={Tabs} options={{ headerShown: false }} />
-        <Stack.Screen
-          name="JobDetail"
-          component={JobDetailScreen}
-          options={{
-            title: 'Job Details',
-            headerStyle: { backgroundColor: colors.surface },
-            headerTitleStyle: { color: colors.text },
-            headerTintColor: colors.primary,
-          }}
-        />
+        <Stack.Screen name="JobDetail" component={JobDetailScreen} options={{ title: 'Job Details' }} />
+        <Stack.Screen name="CompanyDetail" component={CompanyDetailScreen} options={{ title: 'Company' }} />
+        <Stack.Screen name="Saved" component={SavedJobsScreen} options={{ title: 'Saved Jobs' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

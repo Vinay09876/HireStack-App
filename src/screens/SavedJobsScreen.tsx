@@ -1,17 +1,12 @@
 import React from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
-import type { CompositeScreenProps } from '@react-navigation/native';
-import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useJob } from '../context/JobContext';
-import type { RootStackParamList, TabParamList } from '../navigation/types';
+import type { RootStackParamList } from '../navigation/types';
 import { useAppTheme } from '../context/ThemeContext';
 import { ThemeColors } from '../theme';
 
-type Props = CompositeScreenProps<
-  BottomTabScreenProps<TabParamList, 'Saved'>,
-  NativeStackScreenProps<RootStackParamList>
->;
+type Props = NativeStackScreenProps<RootStackParamList, 'Saved'>;
 
 export const SavedJobsScreen: React.FC<Props> = ({ navigation }) => {
   const { getSavedJobs, currentUser } = useJob();
