@@ -5,6 +5,10 @@ import { useAppTheme } from '../context/ThemeContext';
 import { ThemeColors } from '../theme';
 import { GoogleIcon } from '../components/GoogleIcon';
 
+// Google sign-in needs a standalone dev client (not Expo Go) so the app can
+// own its own hirestackmobile:// redirect scheme - hidden until that's built.
+const GOOGLE_SIGN_IN_ENABLED = false;
+
 export const ProfileScreen: React.FC = () => {
   const { currentUser, userProfile, signIn, signUp, signInWithGoogle, logout } = useJob();
   const { theme, colors, toggleTheme } = useAppTheme();
@@ -114,22 +118,26 @@ export const ProfileScreen: React.FC = () => {
         </Text>
       </TouchableOpacity>
 
-      <View style={styles.dividerRow}>
-        <View style={styles.dividerLine} />
-        <Text style={styles.dividerText}>or</Text>
-        <View style={styles.dividerLine} />
-      </View>
+      {GOOGLE_SIGN_IN_ENABLED && (
+        <>
+          <View style={styles.dividerRow}>
+            <View style={styles.dividerLine} />
+            <Text style={styles.dividerText}>or</Text>
+            <View style={styles.dividerLine} />
+          </View>
 
-      <TouchableOpacity
-        style={styles.googleButton}
-        onPress={handleGoogleSignIn}
-        disabled={googleSubmitting}
-      >
-        {!googleSubmitting && <GoogleIcon size={16} />}
-        <Text style={styles.googleButtonText}>
-          {googleSubmitting ? 'Opening Google...' : 'Continue with Google'}
-        </Text>
-      </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.googleButton}
+            onPress={handleGoogleSignIn}
+            disabled={googleSubmitting}
+          >
+            {!googleSubmitting && <GoogleIcon size={16} />}
+            <Text style={styles.googleButtonText}>
+              {googleSubmitting ? 'Opening Google...' : 'Continue with Google'}
+            </Text>
+          </TouchableOpacity>
+        </>
+      )}
 
       <TouchableOpacity style={styles.themeRow} onPress={toggleTheme}>
         <Text style={styles.themeRowText}>{theme === 'dark' ? '☀️ Switch to Light Mode' : '🌙 Switch to Dark Mode'}</Text>

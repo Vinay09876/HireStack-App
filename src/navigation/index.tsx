@@ -5,6 +5,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Text, TouchableOpacity } from 'react-native';
 import { JobsListScreen } from '../screens/JobsListScreen';
 import { SavedJobsScreen } from '../screens/SavedJobsScreen';
+import { JobAlertsScreen } from '../screens/JobAlertsScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
 import { JobDetailScreen } from '../screens/JobDetailScreen';
 import type { RootStackParamList, TabParamList } from './types';
@@ -16,6 +17,7 @@ const Tab = createBottomTabNavigator<TabParamList>();
 const TAB_ICONS: Record<keyof TabParamList, string> = {
   JobsList: '🔎',
   Saved: '★',
+  Alerts: '🔔',
   Profile: '👤',
 };
 
@@ -54,6 +56,7 @@ function Tabs() {
     >
       <Tab.Screen name="JobsList" component={JobsListScreen} options={{ title: 'Jobs' }} />
       <Tab.Screen name="Saved" component={SavedJobsScreen} options={{ title: 'Saved' }} />
+      <Tab.Screen name="Alerts" component={JobAlertsScreen} options={{ title: 'Alerts' }} />
       <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: 'Profile' }} />
     </Tab.Navigator>
   );
