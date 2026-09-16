@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Modal, ScrollView } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import { colors } from '../theme';
+import { useAppTheme } from '../context/ThemeContext';
+import { ThemeColors } from '../theme';
 import {
   ALL_EXPERIENCE_LEVELS,
   ALL_JOB_TYPES,
@@ -30,6 +31,9 @@ export const FilterModal: React.FC<FilterModalProps> = ({
   availableCompanies,
   resultCount,
 }) => {
+  const { colors } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(colors), [colors]);
+
   const toggleJobType = (type: JobType) => {
     const exists = filters.jobTypes.includes(type);
     const jobTypes = exists ? filters.jobTypes.filter((t) => t !== type) : [...filters.jobTypes, type];
@@ -63,10 +67,12 @@ export const FilterModal: React.FC<FilterModalProps> = ({
               <Picker
                 selectedValue={filters.location}
                 onValueChange={(value: string) => onFilterChange({ ...filters, location: value })}
+                style={{ color: colors.text }}
+                dropdownIconColor={colors.textMuted}
               >
-                <Picker.Item label="All Locations & Remote" value="" />
+                <Picker.Item label="All Locations & Remote" value="" color={colors.text} />
                 {availableLocations.map((loc) => (
-                  <Picker.Item key={loc} label={loc} value={loc} />
+                  <Picker.Item key={loc} label={loc} value={loc} color={colors.text} />
                 ))}
               </Picker>
             </View>
@@ -76,10 +82,12 @@ export const FilterModal: React.FC<FilterModalProps> = ({
               <Picker
                 selectedValue={filters.company}
                 onValueChange={(value: string) => onFilterChange({ ...filters, company: value })}
+                style={{ color: colors.text }}
+                dropdownIconColor={colors.textMuted}
               >
-                <Picker.Item label="All Top Tech Companies" value="" />
+                <Picker.Item label="All Top Tech Companies" value="" color={colors.text} />
                 {availableCompanies.map((name) => (
-                  <Picker.Item key={name} label={name} value={name} />
+                  <Picker.Item key={name} label={name} value={name} color={colors.text} />
                 ))}
               </Picker>
             </View>
@@ -126,7 +134,7 @@ export const FilterModal: React.FC<FilterModalProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
   sheet: {
     backgroundColor: colors.surface,

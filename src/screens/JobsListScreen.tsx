@@ -13,7 +13,8 @@ import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useJob } from '../context/JobContext';
 import type { RootStackParamList, TabParamList } from '../navigation/types';
-import { colors } from '../theme';
+import { useAppTheme } from '../context/ThemeContext';
+import { ThemeColors } from '../theme';
 import { emptyFilters, hasActiveFilters, JobFilters } from '../filters';
 import { FilterModal } from '../components/FilterModal';
 
@@ -24,6 +25,8 @@ type Props = CompositeScreenProps<
 
 export const JobsListScreen: React.FC<Props> = ({ navigation }) => {
   const { jobs, loading, loadError, retryLoad } = useJob();
+  const { colors } = useAppTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const [query, setQuery] = useState('');
   const [filters, setFilters] = useState<JobFilters>(emptyFilters);
   const [filterModalVisible, setFilterModalVisible] = useState(false);
@@ -157,7 +160,7 @@ export const JobsListScreen: React.FC<Props> = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
   loadingText: { marginTop: 12, color: colors.textMuted, fontSize: 14 },

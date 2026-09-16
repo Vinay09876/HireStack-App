@@ -3,13 +3,16 @@ import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Linking, Alert } 
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useJob } from '../context/JobContext';
 import type { RootStackParamList } from '../navigation/types';
-import { colors } from '../theme';
+import { useAppTheme } from '../context/ThemeContext';
+import { ThemeColors } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'JobDetail'>;
 
 export const JobDetailScreen: React.FC<Props> = ({ route }) => {
   const { jobId } = route.params;
   const { getJobById, isJobSaved, toggleSaveJob, currentUser } = useJob();
+  const { colors } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(colors), [colors]);
   const job = getJobById(jobId);
 
   if (!job) {
@@ -110,7 +113,7 @@ export const JobDetailScreen: React.FC<Props> = ({ route }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   content: { padding: 16, paddingBottom: 40 },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },

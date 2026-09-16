@@ -1,14 +1,14 @@
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Text } from 'react-native';
+import { Text, TouchableOpacity } from 'react-native';
 import { JobsListScreen } from '../screens/JobsListScreen';
 import { SavedJobsScreen } from '../screens/SavedJobsScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
 import { JobDetailScreen } from '../screens/JobDetailScreen';
 import type { RootStackParamList, TabParamList } from './types';
-import { colors } from '../theme';
+import { useAppTheme } from '../context/ThemeContext';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<TabParamList>();
@@ -19,12 +19,24 @@ const TAB_ICONS: Record<keyof TabParamList, string> = {
   Profile: '👤',
 };
 
+function ThemeToggleButton() {
+  const { theme, toggleTheme } = useAppTheme();
+  return (
+    <TouchableOpacity onPress={toggleTheme} accessibilityLabel="Toggle dark mode" style={{ paddingHorizontal: 12 }}>
+      <Text style={{ fontSize: 18 }}>{theme === 'dark' ? '☀️' : '🌙'}</Text>
+    </TouchableOpacity>
+  );
+}
+
 function Tabs() {
+  const { colors } = useAppTheme();
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerStyle: { backgroundColor: colors.surface },
         headerTitleStyle: { color: colors.text },
+        headerRight: () => <ThemeToggleButton />,
+        tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.border },
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textMuted,
         tabBarIcon: () => <Text>{TAB_ICONS[route.name]}</Text>,
@@ -37,15 +49,30 @@ function Tabs() {
   );
 }
 
-export const RootNavigator: React.FC = () => (
-  <NavigationContainer>
-    <Stack.Navigator>
-      <Stack.Screen name="Tabs" component={Tabs} options={{ headerShown: false }} />
-      <Stack.Screen
-        name="JobDetail"
-        component={JobDetailScreen}
-        options={{ title: 'Job Details', headerStyle: { backgroundColor: colors.surface } }}
-      />
-    </Stack.Navigator>
-  </NavigationContainer>
-);
+export const RootNavigator: React.FC = () => {
+  const { theme, colors } = useAppTheme();
+  const navTheme = theme === 'dark' ? DarkTheme : DefaultTheme;
+
+  return (
+    <NavigationContainer
+      theme={{
+        ...navTheme,
+        colors: { ...navTheme.colors, background: colors.background, card: colors.surface, border: colors.border, text: colors.text, primary: colors.primary },
+      }}
+    >
+      <Stack.Navigator>
+        <Stack.Screen name="Tabs" component={Tabs} options={{ headerShown: false }} />
+        <Stack.Screen
+          name="JobDetail"
+          component={JobDetailScreen}
+          options={{
+            title: 'Job Details',
+            headerStyle: { backgroundColor: colors.surface },
+            headerTitleStyle: { color: colors.text },
+            headerTintColor: colors.primary,
+          }}
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+};

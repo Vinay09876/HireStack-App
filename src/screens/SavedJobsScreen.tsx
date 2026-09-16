@@ -5,7 +5,8 @@ import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useJob } from '../context/JobContext';
 import type { RootStackParamList, TabParamList } from '../navigation/types';
-import { colors } from '../theme';
+import { useAppTheme } from '../context/ThemeContext';
+import { ThemeColors } from '../theme';
 
 type Props = CompositeScreenProps<
   BottomTabScreenProps<TabParamList, 'Saved'>,
@@ -14,6 +15,8 @@ type Props = CompositeScreenProps<
 
 export const SavedJobsScreen: React.FC<Props> = ({ navigation }) => {
   const { getSavedJobs, currentUser } = useJob();
+  const { colors } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(colors), [colors]);
 
   if (!currentUser) {
     return (
@@ -55,7 +58,7 @@ export const SavedJobsScreen: React.FC<Props> = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32 },
   emptyTitle: { fontSize: 16, fontWeight: '700', color: colors.text, marginBottom: 6 },
