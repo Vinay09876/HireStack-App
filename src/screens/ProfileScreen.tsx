@@ -5,7 +5,7 @@ import { useAppTheme } from '../context/ThemeContext';
 import { ThemeColors } from '../theme';
 
 export const ProfileScreen: React.FC = () => {
-  const { currentUser, userProfile, signIn, signUp, logout } = useJob();
+  const { currentUser, userProfile, signIn, signUp, signInWithGoogle, logout } = useJob();
   const { theme, colors, toggleTheme } = useAppTheme();
   const styles = React.useMemo(() => createStyles(colors), [colors]);
   const [mode, setMode] = useState<'login' | 'signup'>('login');
@@ -13,6 +13,7 @@ export const ProfileScreen: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [googleSubmitting, setGoogleSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   if (currentUser) {
@@ -51,6 +52,16 @@ export const ProfileScreen: React.FC = () => {
     } else if (mode === 'signup') {
       Alert.alert('Check your email', 'Confirm your email to finish signing up, then sign in.');
       setMode('login');
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setError(null);
+    setGoogleSubmitting(true);
+    const result = await signInWithGoogle();
+    setGoogleSubmitting(false);
+    if (result.error) {
+      setError(result.error);
     }
   };
 
@@ -102,6 +113,22 @@ export const ProfileScreen: React.FC = () => {
         </Text>
       </TouchableOpacity>
 
+      <View style={styles.dividerRow}>
+        <View style={styles.dividerLine} />
+        <Text style={styles.dividerText}>or</Text>
+        <View style={styles.dividerLine} />
+      </View>
+
+      <TouchableOpacity
+        style={styles.googleButton}
+        onPress={handleGoogleSignIn}
+        disabled={googleSubmitting}
+      >
+        <Text style={styles.googleButtonText}>
+          {googleSubmitting ? 'Opening Google...' : 'Continue with Google'}
+        </Text>
+      </TouchableOpacity>
+
       <TouchableOpacity style={styles.themeRow} onPress={toggleTheme}>
         <Text style={styles.themeRowText}>{theme === 'dark' ? '☀️ Switch to Light Mode' : '🌙 Switch to Dark Mode'}</Text>
       </TouchableOpacity>
@@ -111,6 +138,19 @@ export const ProfileScreen: React.FC = () => {
 
 const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background, padding: 24, justifyContent: 'center' },
+  dividerRow: { flexDirection: 'row', alignItems: 'center', marginTop: 20, marginBottom: 4 },
+  dividerLine: { flex: 1, height: 1, backgroundColor: colors.border },
+  dividerText: { color: colors.textMuted, fontSize: 12, marginHorizontal: 10 },
+  googleButton: {
+    marginTop: 12,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 12,
+    paddingVertical: 13,
+    alignItems: 'center',
+    backgroundColor: colors.surface,
+  },
+  googleButtonText: { color: colors.text, fontWeight: '700', fontSize: 14 },
   themeRow: {
     marginTop: 16,
     borderWidth: 1,

@@ -1,7 +1,11 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import type { Session } from '@supabase/supabase-js';
+import * as WebBrowser from 'expo-web-browser';
+import * as Linking from 'expo-linking';
 import { supabase } from '../lib/supabase';
 import { Company, Job, UserProfile } from '../types';
+
+WebBrowser.maybeCompleteAuthSession();
 
 interface AuthUser {
   id: string;
@@ -27,6 +31,7 @@ interface JobContextType {
   currentUser: AuthUser | null;
   signUp: (email: string, password: string, name: string) => Promise<{ error?: string }>;
   signIn: (email: string, password: string) => Promise<{ error?: string }>;
+  signInWithGoogle: () => Promise<{ error?: string }>;
   logout: () => void;
 }
 
@@ -259,6 +264,41 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return { error: error?.message };
   };
 
+  const signInWithGoogle = async () => {
+    // Supabase can't redirect straight into the app, so it lands on this
+    // deep link (registered as a redirect URL in the Supabase dashboard),
+    // which the OS hands back to the in-app browser session below.
+    const redirectTo = Linking.createURL('/auth/callback');
+
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo, skipBrowserRedirect: true },
+    });
+    if (error || !data?.url) {
+      return { error: error?.message || 'Could not start Google sign-in.' };
+    }
+
+    const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
+    if (result.type !== 'success' || !result.url) {
+      return result.type === 'cancel' || result.type === 'dismiss'
+        ? {}
+        : { error: 'Google sign-in did not complete.' };
+    }
+
+    const url = new URL(result.url.replace('#', '?'));
+    const accessToken = url.searchParams.get('access_token');
+    const refreshToken = url.searchParams.get('refresh_token');
+    if (!accessToken || !refreshToken) {
+      return { error: 'Google sign-in did not return a valid session.' };
+    }
+
+    const { error: sessionError } = await supabase.auth.setSession({
+      access_token: accessToken,
+      refresh_token: refreshToken,
+    });
+    return { error: sessionError?.message };
+  };
+
   const logout = () => {
     supabase.auth.signOut();
   };
@@ -282,6 +322,7 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         currentUser,
         signUp,
         signIn,
+        signInWithGoogle,
         logout,
       }}
     >
