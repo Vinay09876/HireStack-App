@@ -19,6 +19,11 @@ const TAB_ICONS: Record<keyof TabParamList, string> = {
   Profile: '👤',
 };
 
+// The star glyph renders in the system's default text color instead of an
+// emoji's fixed color, so it needs the tab's tint color passed in explicitly
+// or it stays black and disappears against a dark background.
+const TINTED_ICONS: (keyof TabParamList)[] = ['Saved'];
+
 function ThemeToggleButton() {
   const { theme, toggleTheme } = useAppTheme();
   return (
@@ -39,7 +44,12 @@ function Tabs() {
         tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.border },
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textMuted,
-        tabBarIcon: () => <Text>{TAB_ICONS[route.name]}</Text>,
+        tabBarIcon: ({ color, focused }) =>
+          TINTED_ICONS.includes(route.name) ? (
+            <Text style={{ color, fontSize: 16 }}>{TAB_ICONS[route.name]}</Text>
+          ) : (
+            <Text style={{ opacity: focused ? 1 : 0.6 }}>{TAB_ICONS[route.name]}</Text>
+          ),
       })}
     >
       <Tab.Screen name="JobsList" component={JobsListScreen} options={{ title: 'Jobs' }} />

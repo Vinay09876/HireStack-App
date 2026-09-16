@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, KeyboardAvo
 import { useJob } from '../context/JobContext';
 import { useAppTheme } from '../context/ThemeContext';
 import { ThemeColors } from '../theme';
+import { GoogleIcon } from '../components/GoogleIcon';
 
 export const ProfileScreen: React.FC = () => {
   const { currentUser, userProfile, signIn, signUp, signInWithGoogle, logout } = useJob();
@@ -124,6 +125,7 @@ export const ProfileScreen: React.FC = () => {
         onPress={handleGoogleSignIn}
         disabled={googleSubmitting}
       >
+        {!googleSubmitting && <GoogleIcon size={16} />}
         <Text style={styles.googleButtonText}>
           {googleSubmitting ? 'Opening Google...' : 'Continue with Google'}
         </Text>
@@ -143,11 +145,14 @@ const createStyles = (colors: ThemeColors) => StyleSheet.create({
   dividerText: { color: colors.textMuted, fontSize: 12, marginHorizontal: 10 },
   googleButton: {
     marginTop: 12,
+    flexDirection: 'row',
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: 12,
     paddingVertical: 13,
     alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
     backgroundColor: colors.surface,
   },
   googleButtonText: { color: colors.text, fontWeight: '700', fontSize: 14 },
